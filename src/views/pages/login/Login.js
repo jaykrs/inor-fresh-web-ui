@@ -12,10 +12,11 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CAvatar
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-
+import logo from '../../../assets/images/inor.png'
 const Login = () => {
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -62,14 +63,11 @@ const Login = () => {
               <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
                   <div>
-                    <h2>Sign up</h2>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
+                    <h2>INOR FRESH APP</h2>
+                    <p>In case of login issue kindly contact help@inorfresh.com</p>
                     <Link to="/register">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
+                        Help Now!
                       </CButton>
                     </Link>
                   </div>
