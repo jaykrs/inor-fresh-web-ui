@@ -30,28 +30,71 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    subItems: [{ name: "Ecommerce", path: "/admin", pro: false }],
   },
   {
     icon: <CalenderIcon />,
     name: "Calendar",
-    path: "/calendar",
+    path: "/admin/calendar",
   },
   {
     icon: <UserCircleIcon />,
     name: "User Profile",
-    path: "/profile",
+    path: "/admin/profile",
+  },
+
+  {
+    icon: <UserCircleIcon />,
+    name: "Vendor",
+    path: "/admin/vendors",
+  },
+
+  {
+    icon: <UserCircleIcon />,
+    name: "Student",
+    path: "/admin/student",
+  },
+
+  {
+    icon: <UserCircleIcon />,
+    name: "Warehouse",
+    path: "/admin/warehouses",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Boat",
+    path: "/admin/boats",
+  },
+
+   {
+    icon: <UserCircleIcon />,
+    name: "Product",
+    path: "/admin/products",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Supplier",
+    path: "/admin/suppliers",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Box",
+    path: "/admin/boxes",
+  },
+  {icon: <UserCircleIcon />,
+    name: "Author",
+    path: "/admin/authors",
   },
 
   {
     name: "Forms",
     icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+    subItems: [{ name: "Form Elements", path: "/admin/form-elements", pro: false }],
   },
   {
     name: "Tables",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    subItems: [{ name: "Basic Tables", path: "/admin/basic-tables", pro: false }],
   },
   {
     name: "Pages",
