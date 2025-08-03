@@ -42,7 +42,7 @@ export default function SupplierPage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:1337/api/suppliers?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
+        process.env.NEXT_PUBLIC_API_URL+`/suppliers?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -120,7 +120,7 @@ export default function SupplierPage() {
     if (!id) return;
     if (!window.confirm("Are you sure you want to delete this supplier?")) return;
     try {
-      const res = await fetch(`http://localhost:1337/api/suppliers/${id}`, { method: "DELETE" });
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/suppliers/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete supplier");
       toast.success("Supplier deleted successfully");
       fetchSuppliers();
@@ -157,8 +157,8 @@ export default function SupplierPage() {
     };
 
     const url = isEdit
-      ? `http://localhost:1337/api/suppliers/${formData.documentId}`
-      : "http://localhost:1337/api/suppliers";
+      ? process.env.NEXT_PUBLIC_API_URL+`/suppliers/${formData.documentId}`
+      : "process.env.NEXT_PUBLIC_API_URL/suppliers";
 
     const method = isEdit ? "PUT" : "POST";
 

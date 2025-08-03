@@ -30,7 +30,7 @@ export default function BoxPage() {
 
   const fetchBoxes = async () => {
     try {
-      const res = await fetch("http://localhost:1337/api/boxes");
+      const res = await fetch("process.env.NEXT_PUBLIC_API_URL/boxes");
       const json = await res.json();
       const formatted = json.data.map((item: any) => ({
         id: item.id,
@@ -77,7 +77,7 @@ export default function BoxPage() {
     if (!id) return;
     if (!confirm("Are you sure you want to delete this box?")) return;
     try {
-      await fetch(`http://localhost:1337/api/boxes/${id}`, {
+      await fetch(process.env.NEXT_PUBLIC_API_URL+`/boxes/${id}`, {
         method: "DELETE",
       });
       fetchBoxes();
@@ -101,8 +101,8 @@ export default function BoxPage() {
     try {
       const res = await fetch(
         isEdit
-          ? `http://localhost:1337/api/boxes/${id}`
-          : `http://localhost:1337/api/boxes`,
+          ? process.env.NEXT_PUBLIC_API_URL+`/boxes/${id}`
+          : process.env.NEXT_PUBLIC_API_URL+`/boxes`,
         {
           method: isEdit ? "PUT" : "POST",
           headers: {

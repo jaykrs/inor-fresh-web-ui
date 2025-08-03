@@ -40,7 +40,14 @@ export default function BoatPage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:1337/api/boats?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
+        process.env.NEXT_PUBLIC_API_URL+`/boats?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`,
+        {
+        method: 'GET', // or 'POST', 'PUT', 'DELETE', etc.
+        headers: {
+      Authorization: "Bearer " + localStorage.getItem("jwt"), // Add the Authorization header with your token
+      'Content-Type': 'application/json', // Example for JSON content
+     },
+}
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -111,7 +118,7 @@ export default function BoatPage() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this boat?")) return;
     try {
-      const res = await fetch(`http://localhost:1337/api/boats/${id}`, { method: "DELETE" });
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/boats/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete boat");
       toast.success("Boat deleted successfully");
       fetchBoats();
@@ -148,8 +155,8 @@ export default function BoatPage() {
     };
 
     const url = isEdit
-      ? `http://localhost:1337/api/boats/${formData.documentId}`
-      : "http://localhost:1337/api/boats";
+      ? process.env.NEXT_PUBLIC_API_URL+`/boats/${formData.documentId}`
+      : "process.env.NEXT_PUBLIC_API_URL/boats";
 
     const method = isEdit ? "PUT" : "POST";
 

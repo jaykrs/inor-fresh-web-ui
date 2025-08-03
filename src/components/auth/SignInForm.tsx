@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const route = useRouter();
@@ -23,7 +22,7 @@ export default function SignInForm() {
     }
 
     try {
-      const res = await fetch("https://api.edoctry.com/api/auth/local", {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+"/auth/local", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,7 +38,11 @@ export default function SignInForm() {
       if (!res.ok) {
         throw new Error(data?.error?.message || "Login failed. Please try again.");
       }
-
+      localStorage.setItem("jwt",data.jwt);
+      localStorage.setItem("email",data.user.email);
+      localStorage.setItem("username",data.user.username);
+      localStorage.setItem("name",data.user.name);
+      localStorage.setItem("useravatar",data.user.useravatar);
       console.log("Response:", data);
       alert("Sign in successfully!");
       route.push('/admin');

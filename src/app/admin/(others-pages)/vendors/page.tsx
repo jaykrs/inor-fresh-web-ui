@@ -40,7 +40,7 @@ export default function VendorPage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:1337/api/vendors?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}&populate=resource`
+        process.env.NEXT_PUBLIC_API_URL+`/vendors?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}&populate=resource`
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -110,7 +110,7 @@ export default function VendorPage() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this vendor?")) return;
     try {
-      const res = await fetch(`http://localhost:1337/api/vendors/${id}`, {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/vendors/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete vendor");
@@ -142,8 +142,8 @@ export default function VendorPage() {
 
       const isEdit = !!formData.id;
       const url = isEdit
-        ? `http://localhost:1337/api/vendors/${formData.id}`
-        : `http://localhost:1337/api/vendors`;
+        ? process.env.NEXT_PUBLIC_API_URL+`/vendors/${formData.id}`
+        : process.env.NEXT_PUBLIC_API_URL+`/vendors`;
 
       const payload = {
         data: {

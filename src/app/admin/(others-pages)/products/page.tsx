@@ -40,7 +40,7 @@ export default function ProductPage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:1337/api/products?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}&populate=*`
+        process.env.NEXT_PUBLIC_API_URL+`/products?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}&populate=*`
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -116,7 +116,7 @@ export default function ProductPage() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      const res = await fetch(`http://localhost:1337/api/products/${id}`, {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/products/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete product");
@@ -148,8 +148,8 @@ export default function ProductPage() {
 
       const isEdit = !!formData.id;
       const url = isEdit
-        ? `http://localhost:1337/api/products/${formData.id}`
-        : `http://localhost:1337/api/products`;
+        ? process.env.NEXT_PUBLIC_API_URL+`/products/${formData.id}`
+        : process.env.NEXT_PUBLIC_API_URL+`/products`;
 
       const payload = {
         data: {

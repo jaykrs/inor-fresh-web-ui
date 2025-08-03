@@ -32,7 +32,7 @@ export default function AuthorPage() {
   try {
     setLoading(true);
     const res = await fetch(
-      `http://localhost:1337/api/authors?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
+      process.env.NEXT_PUBLIC_API_URL+`/authors?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
     );
     const json = await res.json();
 
@@ -85,7 +85,7 @@ export default function AuthorPage() {
   const handleDelete = async (id?: number) => {
     if (!id || !confirm("Are you sure you want to delete this author?")) return;
     try {
-      await fetch(`http://localhost:1337/api/authors/${id}`, { method: "DELETE" });
+      await fetch(process.env.NEXT_PUBLIC_API_URL+`/authors/${id}`, { method: "DELETE" });
       fetchAuthors(currentPage);
     } catch (err) {
       alert("Failed to delete author.");
@@ -119,8 +119,8 @@ export default function AuthorPage() {
 
     const res = await fetch(
       isEdit
-        ? `http://localhost:1337/api/authors/${formData.id}`
-        : `http://localhost:1337/api/authors`,
+        ? process.env.NEXT_PUBLIC_API_URL+`/authors/${formData.id}`
+        : process.env.NEXT_PUBLIC_API_URL+`/authors`,
       {
         method: isEdit ? "PUT" : "POST",
         body: form,

@@ -48,7 +48,7 @@ export default function WarehousePage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:1337/api/warehouses?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
+        process.env.NEXT_PUBLIC_API_URL+`/warehouses?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -130,7 +130,7 @@ export default function WarehousePage() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this warehouse?")) return;
     try {
-      const res = await fetch(`http://localhost:1337/api/warehouses/${id}`, { method: "DELETE" });
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/warehouses/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete warehouse");
       toast.success("Warehouse deleted successfully");
       fetchWarehouses(currentPage);
@@ -160,8 +160,8 @@ export default function WarehousePage() {
 
       const isEdit = !!formData.id;
       const url = isEdit
-        ? `http://localhost:1337/api/warehouses/${formData.id}`
-        : `http://localhost:1337/api/warehouses`;
+        ? process.env.NEXT_PUBLIC_API_URL+`/warehouses/${formData.id}`
+        : process.env.NEXT_PUBLIC_API_URL+`/warehouses`;
 
       const payload = {
         data: {
