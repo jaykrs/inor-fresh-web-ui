@@ -6,6 +6,27 @@ import { X, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Layout from "@/components/layout/Layout";
 
+/**
+ * Supplier Management Component
+ * 
+ * This component provides a complete interface for managing supplier records including:
+ * - Displaying a paginated list of suppliers with sorting capabilities
+ * - Creating, updating, and deleting supplier records
+ * - Form validation and user feedback
+ * 
+ * Features:
+ * - Server-side pagination
+ * - Client-side sorting
+ * - Responsive design
+ * - Toast notifications for user feedback
+ * 
+ * API Integration:
+ * - Uses JWT authentication for all requests
+ * - Handles GET, POST, PUT, and DELETE operations
+ * - Connects to Strapi backend
+ *   @Developer : Simran Samir
+ */
+
 interface Supplier {
   id?: number;
   documentId?: string;
@@ -19,6 +40,7 @@ interface Supplier {
 }
 
 export default function SupplierPage() {
+  // State management
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Supplier; direction: 'asc' | 'desc' } | null>(null);
@@ -29,20 +51,33 @@ export default function SupplierPage() {
     phone: "",
     email: "",
     city: "",
-    createdAt: new Date().toISOString().split('T')[0], // Set current date as default
+    createdAt: new Date().toISOString().split('T')[0],
     createdBy: "",
     status: false,
   });
 
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
 
+  /**
+   * Fetches suppliers from the API with pagination
+   * @param {number} page - The page number to fetch (defaults to currentPage)
+   */
   const fetchSuppliers = async (page = currentPage) => {
     try {
       setLoading(true);
       const res = await fetch(
-        process.env.NEXT_PUBLIC_API_URL+`/suppliers?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`
+        `${process.env.NEXT_PUBLIC_API_URL}/suppliers?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store'
+        }
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -77,6 +112,10 @@ export default function SupplierPage() {
     fetchSuppliers();
   }, [currentPage]);
 
+  /**
+   * Handles column sorting
+   * @param {keyof Supplier} key - The column to sort by
+   */
   const handleSort = (key: keyof Supplier) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -85,6 +124,7 @@ export default function SupplierPage() {
     setSortConfig({ key, direction });
   };
 
+  // Sorted suppliers list
   const sortedSuppliers = React.useMemo(() => {
     if (!sortConfig) return suppliers;
     return [...suppliers].sort((a, b) => {
@@ -94,7 +134,11 @@ export default function SupplierPage() {
     });
   }, [suppliers, sortConfig]);
 
-    const handleEdit = (supplier: Supplier) => {
+  /**
+   * Prepares form for editing an existing supplier
+   * @param {Supplier} supplier - The supplier to edit
+   */
+  const handleEdit = (supplier: Supplier) => {
     setFormData({ 
       ...supplier,
       createdAt: supplier.createdAt ? supplier.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
@@ -103,33 +147,48 @@ export default function SupplierPage() {
     setFormOpen(true);
   };
 
+  /** Prepares form for adding a new supplier */
   const handleAdd = () => {
     setFormData({
       name: "",
       phone: "",
       email: "",
       city: "",
-      createdAt: new Date().toISOString().split('T')[0], // Set current date as default
+      createdAt: new Date().toISOString().split('T')[0],
       createdBy: "",
       status: false,
     });
     setFormOpen(true);
   };
 
+  /**
+   * Deletes a supplier after confirmation
+   * @param {number} id - The ID of the supplier to delete
+   */
   const handleDelete = async (id?: number) => {
     if (!id) return;
     if (!window.confirm("Are you sure you want to delete this supplier?")) return;
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/suppliers/${id}`, { method: "DELETE" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/suppliers/${id}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+          'Content-Type': 'application/json',
+        },
+      });
       if (!res.ok) throw new Error("Failed to delete supplier");
       toast.success("Supplier deleted successfully");
-      fetchSuppliers();
+      fetchSuppliers(currentPage);
     } catch (err) {
       toast.error("Error deleting supplier");
       console.error(err);
     }
   };
 
+  /**
+   * Handles form input changes
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event
+   */
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     const isCheckbox = type === "checkbox";
@@ -141,6 +200,10 @@ export default function SupplierPage() {
     }));
   };
 
+  /**
+   * Handles form submission for create/update
+   * Validates required fields and makes appropriate API request
+   */
   const handleSubmit = async () => {
     setIsSaving(true);
     const isEdit = !!formData.documentId;
@@ -151,50 +214,42 @@ export default function SupplierPage() {
         phone: formData.phone,
         email: formData.email,
         city: formData.city,
-        createdBy: formData.createdBy, // Include createdBy in the payload
+        createdBy: formData.createdBy,
         status: formData.status,
       },
     };
 
     const url = isEdit
-      ? process.env.NEXT_PUBLIC_API_URL+`/suppliers/${formData.documentId}`
-      : "process.env.NEXT_PUBLIC_API_URL/suppliers";
-
-    const method = isEdit ? "PUT" : "POST";
+      ? `${process.env.NEXT_PUBLIC_API_URL}/suppliers/${formData.documentId}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/suppliers`;
 
     try {
       const res = await fetch(url, {
-        method,
+        method: isEdit ? "PUT" : "POST",
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
         },
         body: JSON.stringify(payload),
       });
 
-      let resJson;
-      try {
-        resJson = await res.json();
-      } catch {
-        resJson = {};
-      }
-
       if (!res.ok) {
-        console.error(`Save failed: [${res.status}]`, resJson);
-        toast.error(resJson?.error?.message || `Failed to save supplier [${res.status}]`);
-        return;
+        const errorData = await res.json();
+        throw new Error(errorData.error?.message || `Failed to save supplier [${res.status}]`);
       }
 
       toast.success(isEdit ? "Supplier updated!" : "Supplier created!");
       setFormOpen(false);
-      fetchSuppliers(currentPage);
+      fetchSuppliers(isEdit ? currentPage : 1);
     } catch (err) {
-      console.error("Unexpected error saving supplier:", err);
-      toast.error("Something went wrong");
+      console.error("Error saving supplier:", err);
+      toast.error(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Pagination calculations
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const canPreviousPage = currentPage > 1;
   const canNextPage = currentPage < totalPages;

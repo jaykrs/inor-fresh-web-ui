@@ -6,6 +6,28 @@ import { X, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Layout from "@/components/layout/Layout";
 
+/**
+ * Boat Management Page
+ * 
+ * This component provides a comprehensive interface for managing boat records including:
+ * - Displaying a paginated list of boats with sorting capabilities
+ * - Adding new boat records
+ * - Editing existing boat records
+ * - Deleting boat records
+ * 
+ * Features:
+ * - Responsive design with a clean UI
+ * - Client-side sorting
+ * - Server-side pagination
+ * - Form validation
+ * - Toast notifications for user feedback
+ * 
+ * API Integration:
+ * - Connects to a Strapi backend for CRUD operations
+ * - Uses JWT for authentication
+ *   @Developer : Simran Samir
+ */
+
 type Boat = {
   id?: number;
   documentId?: string;
@@ -14,7 +36,6 @@ type Boat = {
   ownercity: string;
   owneremail: string;
   boatcategory: string;
-  status: boolean;
 };
 
 export default function BoatPage() {
@@ -29,25 +50,28 @@ export default function BoatPage() {
     ownercity: "",
     owneremail: "",
     boatcategory: "",
-    status: false,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
 
+  /**
+   * Fetches boat data from the API with pagination support
+   * @param {number} page - The page number to fetch (defaults to currentPage)
+   */
   const fetchBoats = async (page = currentPage) => {
     try {
       setLoading(true);
       const res = await fetch(
         process.env.NEXT_PUBLIC_API_URL+`/boats?pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`,
         {
-        method: 'GET', // or 'POST', 'PUT', 'DELETE', etc.
-        headers: {
-      Authorization: "Bearer " + localStorage.getItem("jwt"), // Add the Authorization header with your token
-      'Content-Type': 'application/json', // Example for JSON content
-     },
-}
+          method: 'GET',
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -63,7 +87,6 @@ export default function BoatPage() {
         ownercity: item.ownercity || "",
         owneremail: item.owneremail || "",
         boatcategory: item.boatcategory || "",
-        status: item.status || false,
       }));
 
       setBoats(formatted);
@@ -81,6 +104,10 @@ export default function BoatPage() {
     fetchBoats();
   }, [currentPage]);
 
+  /**
+   * Handles column sorting for the boat table
+   * @param {keyof Boat} key - The column key to sort by
+   */
   const handleSort = (key: keyof Boat) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -98,11 +125,18 @@ export default function BoatPage() {
     });
   }, [boats, sortConfig]);
 
+  /**
+   * Prepares the form for editing an existing boat
+   * @param {Boat} boat - The boat object to edit
+   */
   const handleEdit = (boat: Boat) => {
     setFormData({ ...boat });
     setFormOpen(true);
   };
 
+  /**
+   * Prepares the form for adding a new boat
+   */
   const handleAdd = () => {
     setFormData({
       ownername: "",
@@ -110,15 +144,23 @@ export default function BoatPage() {
       ownercity: "",
       owneremail: "",
       boatcategory: "",
-      status: false,
     });
     setFormOpen(true);
   };
 
+  /**
+   * Handles boat deletion after confirmation
+   * @param {number} id - The ID of the boat to delete
+   */
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this boat?")) return;
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/boats/${id}`, { method: "DELETE" });
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL+`/boats/${id}`, { 
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        }
+      });
       if (!res.ok) throw new Error("Failed to delete boat");
       toast.success("Boat deleted successfully");
       fetchBoats();
@@ -128,17 +170,24 @@ export default function BoatPage() {
     }
   };
 
+  /**
+   * Handles form input changes
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event
+   */
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    const isCheckbox = type === "checkbox";
-    const checked = isCheckbox && "checked" in e.target ? (e.target as HTMLInputElement).checked : undefined;
-
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: isCheckbox ? checked : value,
+      [name]: value,
     }));
   };
 
+  /**
+   * Handles boat creation or update
+   * Determines if the form is in 'edit' mode based on the presence of documentId
+   * Constructs a request to the Strapi API with appropriate method and payload
+   * Shows user feedback on success/failure and refreshes list if successful
+   */
   const handleSubmit = async () => {
     setIsSaving(true);
     const isEdit = !!formData.documentId;
@@ -150,13 +199,12 @@ export default function BoatPage() {
         ownercity: formData.ownercity,
         owneremail: formData.owneremail,
         boatcategory: formData.boatcategory,
-        status: formData.status,
       },
     };
 
     const url = isEdit
-      ? process.env.NEXT_PUBLIC_API_URL+`/boats/${formData.documentId}`
-      : "process.env.NEXT_PUBLIC_API_URL/boats";
+      ? `${process.env.NEXT_PUBLIC_API_URL}/boats/${formData.documentId}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/boats`;
 
     const method = isEdit ? "PUT" : "POST";
 
@@ -165,6 +213,7 @@ export default function BoatPage() {
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
         },
         body: JSON.stringify(payload),
       });
@@ -184,7 +233,7 @@ export default function BoatPage() {
 
       toast.success(isEdit ? "Boat updated!" : "Boat created!");
       setFormOpen(false);
-      fetchBoats(currentPage); // Maintain current page after edit
+      fetchBoats(currentPage);
     } catch (err) {
       console.error("Unexpected error saving boat:", err);
       toast.error("Something went wrong");
@@ -241,7 +290,6 @@ export default function BoatPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boat Details</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -261,11 +309,6 @@ export default function BoatPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {boat.boatcategory}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${boat.status ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
-                          {boat.status ? "Active" : "Inactive"}
-                        </span>
                       </td>
                       <td className="px-6 py-4 text-right flex justify-end gap-2">
                         <Button onClick={() => handleEdit(boat)} className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-md"><Edit className="h-4 w-4" /></Button>
@@ -341,16 +384,6 @@ export default function BoatPage() {
                     />
                   </div>
                 ))}
-                <div className="flex items-center gap-2 md:col-span-2">
-                  <input 
-                    type="checkbox" 
-                    name="status" 
-                    checked={formData.status} 
-                    onChange={handleFormChange} 
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  />
-                  <label className="text-sm text-gray-700">Active Boat</label>
-                </div>
               </div>
 
               <div className="mt-4 pt-4 border-t flex justify-end gap-3 sticky bottom-0 bg-white">
