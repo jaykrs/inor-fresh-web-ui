@@ -13,6 +13,7 @@ export default function UserMetaCard() {
     const [name, setName] =  useState(localStorage.getItem("name"));
     const [email, setEmail] =  useState(localStorage.getItem("email"));
     const [userAvatar, setUserAvatar] = useState<string | null>(localStorage.getItem("useravatar"));
+    
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -27,7 +28,7 @@ export default function UserMetaCard() {
               <Image
                 width={80}
                 height={80}
-                src={userAvatar ? `${process.env.NEXT_PUBLIC_API_HOST}${userAvatar}` : "/images/user/owner.png"}
+                src="/images/user/user-36.jpg"
                 alt="user"
               />
             </div>

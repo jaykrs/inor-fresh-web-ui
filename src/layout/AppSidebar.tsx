@@ -86,6 +86,11 @@ const navItems: NavItem[] = [
     path: "/admin/authors",
   },
 
+  {icon: <UserCircleIcon />,
+    name: "Order Workflow",
+    path: "/admin/order-workflow",
+  },
+
   {
     name: "Forms",
     icon: <ListIcon />,
